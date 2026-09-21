@@ -225,7 +225,6 @@ int main(void)
     if (ue.state != ATTACHING) {
         return 1;
     }
-
     Session session = create_session(&ue, &pgw, bearer);
 
     print_session(&session);

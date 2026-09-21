@@ -173,7 +173,7 @@ int main(void)
 
     HSS hss = {
         "440100000000001",
-        "private",
+        "internet",
         "secret"};
 
     MME mme = {
@@ -194,19 +194,20 @@ int main(void)
         "",
         2001};
 
-    Bearer bearer = {
-        0,
-        0,
-        0,
-        0};
-
+    // Bearer bearer = {
+        // 0,
+        // 0,
+        // 0,
+        // 0};
+    printf("%d", 1);
     if (mme_attach(&mme, &hss, &ue) != 0) {
         return 1;
     }
+    
     if (pgw_allocate_ip(&pgw, &ue) != 0) {
         return 1;
     }
-
+    
     if (sgw.bearer_id <= 0) {
         return 1;
     }
@@ -217,16 +218,18 @@ int main(void)
     if (sgw.bearer_id <= 0) {  
         return 1;
     }
+    
     if (sgw.s1u_rx_teid == 0 || pgw.pgw_teid == 0) {
         return 1;
     }
     Bearer bearer = create_bearer(&sgw, &pgw);
-
+    
     if (ue.state != ATTACHING) {
         return 1;
     }
+    printf("%d", 1);
     Session session = create_session(&ue, &pgw, bearer);
-
+    printf("%d", 2);
     print_session(&session);
 
     return 0;

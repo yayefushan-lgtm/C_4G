@@ -125,7 +125,7 @@ Bearer create_bearer(SGW *sgw, PGW *pgw)
 {
     Bearer bearer;
 
-    bearer.bearer_id = 5;
+    bearer.bearer_id = sgw->bearer_id;
     bearer.qos = 9;
     bearer.sgw_teid = sgw->s1u_rx_teid;
     bearer.pgw_teid = pgw->pgw_teid;
@@ -199,8 +199,12 @@ int main(void)
         // 0,
         // 0,
         // 0};
-    printf("%d", 1);
+
     if (mme_attach(&mme, &hss, &ue) != 0) {
+        return 1;
+    }
+
+    if (ue.state != ATTACHING) {
         return 1;
     }
     
@@ -214,22 +218,15 @@ int main(void)
     if (sgw.pgw_side_teid != pgw.pgw_teid) {
         return 1;
     }
-
-    if (sgw.bearer_id <= 0) {  
-        return 1;
-    }
     
     if (sgw.s1u_rx_teid == 0 || pgw.pgw_teid == 0) {
         return 1;
     }
+
     Bearer bearer = create_bearer(&sgw, &pgw);
-    
-    if (ue.state != ATTACHING) {
-        return 1;
-    }
-    printf("%d", 1);
+
     Session session = create_session(&ue, &pgw, bearer);
-    printf("%d", 2);
+
     print_session(&session);
 
     return 0;

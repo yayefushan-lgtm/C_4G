@@ -104,22 +104,27 @@ int mme_attach(MME *mme, HSS *hss, UE *ue)
 
 int pgw_allocate_ip(PGW *pgw, UE *ue)
 {
+    const char assigned_ip[] = "10.0.0.2";
+
     if (strcmp(ue->apn, pgw->apn) != 0) {
         return -1;    
     }
-    if (sizeof(ue->ip) < sizeof("10.0.0.2")) {
-        return -1;
-    }
-    strcpy(ue->ip, "10.0.0.2");
 
-    if (sizeof(pgw->allocated_ip) < strlen(ue->ip) + 1) {
+    //コピー先の容量を両方確認してからコピーを始める（ue->ip,pgw->allocated_ip）
+    if (sizeof(ue->ip) < sizeof(assigned_ip)) {
         return -1;
     }
 
-    strcpy(pgw->allocated_ip, ue->ip);
+    if (sizeof(pgw->allocated_ip) < sizeof(assigned_ip)) {
+        return -1;
+    }
+
+    strcpy(ue->ip, assigned_ip);
+
+    strcpy(pgw->allocated_ip, assigned_ip);
 
     return 0;
-};
+}
 
 Bearer create_bearer(SGW *sgw, PGW *pgw)
 {
@@ -209,17 +214,29 @@ int main(void)
     }
     
     if (pgw_allocate_ip(&pgw, &ue) != 0) {
+        ue.ip[0] = '\0';
+        pgw.allocated_ip[0] = '\0';
+        ue.state = DETACHED;
         return 1;
     }
     
     if (sgw.bearer_id <= 0) {
+        ue.ip[0] = '\0';
+        pgw.allocated_ip[0] = '\0';
+        ue.state = DETACHED;
         return 1;
     }
     if (sgw.pgw_side_teid != pgw.pgw_teid) {
+        ue.ip[0] = '\0';
+        pgw.allocated_ip[0] = '\0';
+        ue.state = DETACHED;
         return 1;
     }
     
     if (sgw.s1u_rx_teid == 0 || pgw.pgw_teid == 0) {
+        ue.ip[0] = '\0';
+        pgw.allocated_ip[0] = '\0';
+        ue.state = DETACHED;
         return 1;
     }
 
